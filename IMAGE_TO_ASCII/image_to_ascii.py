@@ -34,6 +34,9 @@ def image_to_ascii(im):
     size = im.size
     imData = list(im.getdata())
     resized = np.resize(imData, size)
+    print(resized, type(resized))
+    dot = resized[10:14, 10:14]
+    print(dot)
     picture= "_"*160 + "\n"
     print(picture)
 
@@ -55,5 +58,5 @@ if __name__ == "__main__":
     file = "lamps.png"
     im = open_image(file)
     image_to_ascii(im)
-
+    print(ascii_list(9))
     #swap_color(im, swap='gbr')
