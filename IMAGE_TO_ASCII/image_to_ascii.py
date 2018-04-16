@@ -27,43 +27,75 @@ def mean_color(filename):
     return meanRGB
 
 def ascii_list(n):
-    l = ['.','-','~','"','^','*','&','$','@', chr(0x25a0)]
+    l = [' ','`','.',',','-','~','"','^','*',';','i','l','v','x','p',']','C','P','G','&','$','@','@','#','#',chr(0x25a0),chr(0x25a0)]
     l = l[::]
     return l[n]
 
-def image_to_ascii(im):
+def image_to_ascii(file, printIm=True):
     picture= "_"*160 + "\n"
-    size = im.size
-    imData = list(im.getdata())
-    resized = np.resize(imData, size)
+    if 1:
+        im = Image.open(file)
+        imSize = im.size
+        imData = np.matrix(list(im.getdata()))
+        size = imData.shape
+        #print("size:", size)
+        resized = np.resize(imData, imSize)
+        size = resized.shape
+        #print("size:", size)
+        #sys.exit()
+    else:
+        #example data
+        imData = np.matrix(range(192))
+        resized = np.resize(imData, (12, 16))
+        size = resized.shape
+        #print(resized)
+    #im2 = Image.new(im.mode, im.size)   #new png image
+    #resized = resized.tolist()
+    #im2.putdata(resized)
+    #im2.save("new_file.png")
+
+
     #print(resized, type(resized))
     #dot = resized[10:14, 10:14]
-    dotSize = size[0]//160 + 1
-    dotsNoX = size[1]//dotSize  # +1
-    print(dotSize, size)
-    lastDotX = size[0]%dotSize  #do the same with Y
-    dotsNoY = size[0]//dotSize  # +1
+    dotSize = size[0]//80 + 1
+    #dotSize = size[0]//160 + 1
+    dotsNoX = size[0]//dotSize +1
+    print("size:{0}, dotSize:{1}".format(size, dotSize))
+    #lastDotX = size[0]%dotSize  #do the same with Y
+    dotsNoY = size[1]//dotSize #+1
+    print("dotsNoY, X:", dotsNoY, dotsNoX)
     lines = []
     for y in range(dotsNoY):
         line = []
         for x in range(dotsNoX):
+            #dot = resized[x*(dotSize):(x+1)*dotSize, y*dotSize:(y+1)*dotSize]
+            #dot = resized[y*dotSize:(y+1)*dotSize, y*dotSize:(y+1)*dotSize]
+            #dot = resized[x*dotSize:(x+1)*dotSize, x*dotSize:(x+1)*dotSize]
             dot = resized[y*dotSize:(y+1)*dotSize, x*dotSize:(x+1)*dotSize]
-            #print(dot, (x+1)*dotSize)
-            val = int(np.mean(dot)//25)
+            try:
+                val = int(np.mean(dot)//10)
+            except:
+                val = 0
+            #print(dot, val)
             #val = np.mean(dot)
             line.append(val)
-            picture += ascii_list(val-1)
+            #picture += ascii_list(val)
             #print((np.mean(dot)*10)//255, end=" ")
         lines.append(line)
         picture += "\n"
-        #print()
-    #print(lines)
     m = np.matrix(lines)
+    m = m - m.min()
     print(m.min(), m.max())
-    #print(dot, dotSize)
-    #print(dotsNoY)
-    #print(len(picture))
-    #print(picture)
+    print(m)
+    m = m.tolist()
+    for line in m:
+        #print(line)
+        for item in line:
+            #print(item)
+            print(ascii_list(item), end="")
+        print()
+    if printIm:
+        print(picture)
 
 def swap_color(im, swap='rgb'):
     size = im.size
@@ -84,6 +116,10 @@ if __name__ == "__main__":
     #file = "lamps.png"
     file = "chess.png"
     file = args[0]
-    im = open_image(file)
-    image_to_ascii(im)
+    if "-p" in args:
+        printIm = True
+    else:
+        printIm = False
+    #im = open_image(file)
+    image_to_ascii(file, printIm)
     #swap_color(im, swap='gbr')
