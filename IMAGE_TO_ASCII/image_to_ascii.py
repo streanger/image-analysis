@@ -40,7 +40,7 @@ def image_to_ascii(im):
     #dot = resized[10:14, 10:14]
     dotSize = size[0]//160 + 1
     dotsNoX = size[1]//dotSize  # +1
-    #print(dotsNo, size)
+    print(dotSize, size)
     lastDotX = size[0]%dotSize  #do the same with Y
     dotsNoY = size[0]//dotSize  # +1
     lines = []
@@ -63,7 +63,7 @@ def image_to_ascii(im):
     #print(dot, dotSize)
     #print(dotsNoY)
     #print(len(picture))
-    print(picture)
+    #print(picture)
 
 def swap_color(im, swap='rgb'):
     size = im.size
@@ -79,9 +79,11 @@ def swap_color(im, swap='rgb'):
 
 
 if __name__ == "__main__":
+    args = sys.argv[1:]
     path = script_path()
     #file = "lamps.png"
     file = "chess.png"
+    file = args[0]
     im = open_image(file)
     image_to_ascii(im)
     #swap_color(im, swap='gbr')
