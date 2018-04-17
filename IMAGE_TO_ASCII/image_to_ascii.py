@@ -36,7 +36,16 @@ def image_to_ascii(file, printIm=True):
     if 1:
         im = Image.open(file)
         imSize = im.size
-        imData = np.matrix(list(im.getdata()))
+        #data = (np.resize(list(im.getdata()), (44,44))).tolist()
+        data = list(im.getdata())
+        #print('\n', data)
+        data = [statistics.mean(item[:3]) for item in data]
+        #print('\n'*2, data)
+        #print(data)
+        #sys.exit()
+        imData = np.resize(data, imSize)
+        #imData = np.matrix(list(im.getdata()))
+        #print(imData.tolist())
         size = imData.shape
         #print("size:", size)
         resized = np.resize(imData, imSize)
@@ -57,14 +66,17 @@ def image_to_ascii(file, printIm=True):
 
     #print(resized, type(resized))
     #dot = resized[10:14, 10:14]
-    dotSize = size[0]//80 + 1
+    dotSize = size[0]//60 + 1
     #dotSize = size[0]//160 + 1
     dotsNoX = size[0]//dotSize +1
-    print("size:{0}, dotSize:{1}".format(size, dotSize))
+    #print("size:{0}, dotSize:{1}".format(size, dotSize))
     #lastDotX = size[0]%dotSize  #do the same with Y
-    dotsNoY = size[1]//dotSize #+1
-    print("dotsNoY, X:", dotsNoY, dotsNoX)
+    dotsNoY = size[1]//dotSize -1#+1
+    #print("dotsNoY, X:", dotsNoY, dotsNoX)
     lines = []
+    dotsNo = (size[0]*size[1])//dotSize
+    #print("\n", dotsNo)
+    #sys.exit()
     for y in range(dotsNoY):
         line = []
         for x in range(dotsNoX):
@@ -85,9 +97,10 @@ def image_to_ascii(file, printIm=True):
         picture += "\n"
     m = np.matrix(lines)
     m = m - m.min()
-    print(m.min(), m.max())
-    print(m)
+    #print(m.min(), m.max())
     m = m.tolist()
+    #m = np.swapaxes(m, 1, 0)   #uncomment here to turn photo 90deg
+    #print("\n"*2, m)
     for line in m:
         #print(line)
         for item in line:
