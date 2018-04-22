@@ -29,128 +29,72 @@ def mean_color(filename):
     meanRGB = tuple([statistics.mean(item) for item in resizedData])
     return meanRGB
 
-def ascii_list(n):
+def ascii_list():
     l = [' ',' ','.','`',',','-','-','~','"','^','*',';','i','l','=','v','x','C','P','G','&','$','O','Q','@','@','X','X','#','#',chr(0x25a0),chr(0x25a0)]   #32
     l = list("".join([item*8 for item in l]))
-    #l = l[::-1]
-    l = l[::]
-    return l[n]
+    return l
 
-def image_to_ascii(file, printIm=True):
-    #picture= "_"*160 + "\n"
-    resolution = 0.5
+def image_to_ascii(file, printIm=True, reverseColor=False):
+    asciiList = ascii_list()
+    if reverseColor:
+        asciiList = asciiList[::-1]
+    resolution = 1
     picture = ""
     if 1:
         im = Image.open(file)  #with PIL
         imSize = im.size
         data = list(im.getdata())
-        #data = data[::-1]
-        #print(data)
-        #print("before:\n", data[600:900])
         if not type(data[0]) is int:
             data = [statistics.mean(item[:3]) for item in data]
-        #print("after:\n", data[600:900])
-        #input()
         imData = np.resize(data, imSize)
         size = imData.shape
         resized = np.resize(imData, (imSize[1], imSize[0]))
+        if resized.max() == 1:
+            resized *= 255
         size = resized.shape
     else:
         imData = np.matrix(range(14400))
         resized = np.resize(imData, (120, 120))
         size = resized.shape
-    #dotSizeY = size[0]//50 #+ 1  #change it to resize in x i y axes
-    dotSizeY = size[0]//round(64*resolution)  #+ 1  #change it to resize in x i y axes  64/120
+    dotSizeY = size[0]//round(50*resolution)  #+ 1  #change it to resize in x i y axes  64/120
+    #dotSizeY = size[1]//round(64*resolution)  #+ 1  #change it to resize in x i y axes  64/120
     if dotSizeY == 0:
         dotSizeY +=1
-    #dotSizeX = size[1]//80 #+ 1
-    dotSizeX = size[1]//round(120*resolution) #+ 1
+    dotSizeX = size[1]//round(80*resolution) #+ 1
+    #dotSizeX = size[0]//round(120*resolution) #+ 1
     if dotSizeX == 0:
         dotSizeX +=1
-    #dotsNoX = size[0]//dotSizeX +1
-    dotsNoX = size[1]//dotSizeX +1
-    #dotsNoY = size[1]//dotSizeY +1#+1
-    dotsNoY = size[0]//dotSizeY +1#+1
-    print("dotsNo, x,y:", dotsNoX, dotsNoY, size)
+    dotsNoX = size[1]//dotSizeX
+    dotsNoY = size[0]//dotSizeY
     #resize matrix to full dots in botx X and Y axes!!! important
-    print("sizeX, should be:", dotSizeX*dotsNoX)
-    print("sizeY, should be:", dotSizeY*dotsNoY)
-    zeroM = np.zeros((dotSizeY*dotsNoY, dotSizeX*dotsNoX))
-    #zeroM[:,:-1*(dotSizeX*dotsNoX - size[0])] = resized   #append column   #think about that
-    print(zeroM.shape)
-    #print(resized.tolist())
-    #print()
+    #print("dotsNo, x,y:", dotsNoX, dotsNoY, size)
+    #print("sizeX, should be:", dotSizeX*dotsNoX)
+    #print("sizeY, should be:", dotSizeY*dotsNoY)
     lines = []
     counter = 0
     for y in range(dotsNoY):
         line = []
         for x in range(dotsNoX):
             dot = resized[y*dotSizeY:(y+1)*dotSizeY, x*dotSizeX:(x+1)*dotSizeX]
-            #dot = resized[x*dotSizeX:(x+1)*dotSizeX, y*dotSizeY:(y+1)*dotSizeY]
             #print(dot)
             counter +=1
             if dot == []:
                 dot = [0]
             try:
-                #val = int(np.mean(dot)//10)
                 val = int(np.mean(dot))
             except:
                 val = 1
             line.append(val)
-            picture += ascii_list(val)
+            picture += asciiList[val]
         lines.append(line)
         picture += "\n"
-    m = np.matrix(lines)
-    m = m - m.min()
-    print(m.tolist())
-    print(m.shape)
-    #m = np.resize(m, (45,45))
-    #print(m.shape)
-    #print(m.min(), m.max())
-    #m = m.tolist()  #use this
-    #m = m.flatten().tolist()[0]    #uncomment this one
-    if  m.max() == 1:
-        m = m*255
-    m = m.flatten().tolist()[0]
-    #for index, item in enumerate(m):
-    #    print(ascii_list(item), end="")
-    #    if index%(int(sys.argv[4])) == 0:
-    #        print()
-    #print()
-    #sys.exit()
-    #print(m)
-    #print(m)
-    #m = np.swapaxes(m, 1, 0)   #uncomment here to turn photo 90deg
-    #print("\n"*2, m)
-    #for line in m:
-        #print(line)
-        #for item in line:
-            #print(item)
-            #print(ascii_list(item), end="")
-            #pass
-        #print()
-    if printIm:
-        picture = picture.replace("\n","")
-        picture = list(picture)
-        #print(picture[:100])
-        #picture = rotate_list(picture, 500)
-        #print(picture[:100])
-        picture = "".join(picture)
-        #print(picture)
-    if len(sys.argv)>3:
-        correction = sys.argv[3]
-    else:
-        correction = 0
-    for index, item in enumerate(picture):
-        if index%(dotsNoX-1*int(correction)) == 0:
-            print()
-        print(item, end="")
-    print()
+    print(picture)  #will pring picture on screen
 
 def rotate_list(l, n):
     return l[-n:] + l[:-n]
 
-def swap_color(im, swap='rgb'):
+def swap_color(file, swap='rgb'):
+    im = Image.open(file)
     size = im.size
     imData = list(im.getdata())
     im2 = Image.new(im.mode, im.size)   #new png image
@@ -164,9 +108,10 @@ def swap_color(im, swap='rgb'):
 
 def usage():
     print("Example of usage:")
-    print("     <some_file> <print_ascii_image> <correction_number>")
-    print("     image.png -p 0")
+    print("     <some_file> <print_ascii_image>")
+    print("     image.png -p")
     sys.exit()
+    #put as parameter: resolution and reverseColor
 
 if __name__ == "__main__":
     args = sys.argv[1:]
@@ -174,9 +119,4 @@ if __name__ == "__main__":
         usage()
     path = script_path()
     file = args[0]
-    if "-p" in args:
-        printIm = True
-    else:
-        printIm = False
-    image_to_ascii(file, printIm)
-    #swap_color(im, swap='gbr')
+    image_to_ascii(file, reverseColor=False)
