@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import numpy as np
 import cv2
 import os
@@ -6,19 +7,22 @@ from PIL import Image
 
 def script_path():
     path = os.path.realpath(os.path.dirname(sys.argv[0]))
-    os.chdir(path)  #it seems to be quite important
+    os.chdir(path)
     return path
 
-def open_image(file):
-    img = cv2.imread(file, 0)
+def open_image(file, color=True):
+    if color:
+        img = cv2.imread(file, 1)   #read in color mode
+    else:
+        img = cv2.imread(file, 0)   #read in grayscale mode
     return img
 
 def iter_files(files):
     for file in files:
-        img = open_image(file)
-        print(file, img.mean())
+        img = open_image(file, color=False)
+        #print(file, img.mean())
         gray = img
-        ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+        ret, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)   #threshold
         cv2.imshow("image", thresh)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
@@ -28,22 +32,22 @@ def iter_files(files):
 def greyscale(files):
     for file in files:
         if "_grey" in file:
-            continue
+            continue #do not repeat greyscale
         fullPath = os.path.abspath(file)
-        print(fullPath)
-        img = open_image(fullPath)
-        #cv2.imshow("image", img)
-        #img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-        outName = file.split('.')[0]+"_grey." + file.split('.')[1]
-        print(outName)
+        img = open_image(fullPath, color=False)
+        outName = file.split('.')[0] + "_grey." + file.split('.')[1]
+        print("file out: ", outName)
         cv2.imwrite(outName, img)
     return True
 
+def list_image_files():
+    path = script_path()
+    fileTypes = (".png", ".jpeg", ".jpg", ".gif")
+    files = [item for item in os.listdir(path) if item.lower().endswith(fileTypes)]
+    return files
+
 
 if __name__ == "__main__":
-    path = script_path()
-    #files = [item for item in os.listdir() if "png" in item]
-    #iter_files(files)
-    #cv2.imshow("image", img)
-    files = [item for item in os.listdir(path) if "png" in item]
+    files = list_image_files()
     greyscale(files)
+    #iter_files(files)
