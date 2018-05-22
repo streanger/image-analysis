@@ -32,13 +32,15 @@ def mean_color(filename):
 def ascii_list():
     l = [' ',' ','.','`',',','-','-','~','"','^','*',';','i','l','=','v','x','C','P','G','&','$','O','Q','@','@','X','X','#','#',chr(0x25a0),chr(0x25a0)]   #32
     l = list("".join([item*8 for item in l]))
+    #reverse list means reversed colors
+    #return l[::-1]
     return l
 
 def image_to_ascii(file, printIm=True, reverseColor=False):
     asciiList = ascii_list()
     if reverseColor:
         asciiList = asciiList[::-1]
-    resolution = 1
+    resolution = 1.25
     picture = ""
     if 1:
         im = Image.open(file)  #with PIL
@@ -88,7 +90,8 @@ def image_to_ascii(file, printIm=True, reverseColor=False):
             picture += asciiList[val]
         lines.append(line)
         picture += "\n"
-    print(picture)  #will pring picture on screen
+    #print(picture)  #will pring picture on screen
+    return picture
 
 def rotate_list(l, n):
     return l[-n:] + l[:-n]
@@ -119,4 +122,5 @@ if __name__ == "__main__":
         usage()
     path = script_path()
     file = args[0]
-    image_to_ascii(file, reverseColor=False)
+    image = image_to_ascii(file, reverseColor=False)
+    print(colored(image, "cyan"))
