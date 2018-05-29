@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+#IMPORTANT -> we read images in BGR mode, not RGB
 import numpy as np
 import cv2
 import os
@@ -141,4 +142,3 @@ if __name__ == "__main__":
         #find_circle(file)
         #write_as_greyscale(file)
 
-        
