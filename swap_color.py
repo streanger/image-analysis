@@ -27,7 +27,7 @@ def swap_color(image, swap='rgb'):
     print("image saved to: ", colored(fullName, "cyan"))
 
 def usage(args):
-    if not args:
+    if not args or "-h" in args:
         print("Usage:")
         print("     <image> <rgb> (combination of 'r' + 'g' + 'b')")
         print("Example:")

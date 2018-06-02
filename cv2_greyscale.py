@@ -48,6 +48,21 @@ def list_image_files():
 
 
 if __name__ == "__main__":
-    files = list_image_files()
+    args = sys.argv[1:]
+    if "-h" in args:
+        print("convert images to greyscale. Usage:")
+        print("     <script>            <--- convert all images in current dir")
+        print("     <script> <file>     <--- convert specified file")
+        print("     <script> -h         <--- show this help")
+        sys.exit()
+    if args:
+        file = args[0]
+        if os.path.isfile(file):
+            files = [file]
+        else:
+            print("no such file")
+            sys.exit()
+    else:
+        files = list_image_files()
     greyscale(files)
     #iter_files(files)
