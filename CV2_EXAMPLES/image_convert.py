@@ -134,6 +134,7 @@ if __name__ == "__main__":
         object_tracking(img, level=blue)
         object_tracking(img, level=black)
         object_tracking(img, level=silver)
+
         #img = open_image(file, color=True)
         #if file == "lamps _bad.png":
         #    image_inpainting(img, mask)
