@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 import os
 import sys
+import matplotlib.pyplot as plt
 
 def script_path(subpath=""):
     if subpath:
@@ -25,6 +26,12 @@ def list_image_files(subpath):
     files = [item for item in files if not "pattern" in item]
     return files
 
+def make_hist(img, cx, cy):
+    crop_img = img[cy-100:cy+100, cx-70:cx+70]
+    cv2.imshow("crop_img", crop_img)
+    hist = plt.hist(crop_img.ravel(),256,[2,254])
+    plt.show()
+    return True
 
 if __name__ == "__main__":
     args = sys.argv[1:]
@@ -35,7 +42,8 @@ if __name__ == "__main__":
             sys.exit()
     else:
         files = list_image_files(subpath = "")  #"circles/"
-    patterns = [item for item in os.listdir() if "pattern" in item and item.endswith(".png")]
+    path = script_path()
+    patterns = [item for item in os.listdir(path) if "pattern" in item and item.endswith(".png")]
     for file in files:
         if "front" in file or "-f" in args:
             pattern = patterns[1]
@@ -58,117 +66,122 @@ if __name__ == "__main__":
                 loc.count(0)
                 pass
             except:
-                print("pattern found at threshold:", chr(int(threshold*100)))
                 break
 
-        whiteLevel = 150
-        for pt in zip(*loc[::-1]):
-            cv2.rectangle(img_gray, pt, (pt[0] + w, pt[1] + h), (255,255,255), 2)
-            if "front" in file or "-f" in args:
-                #ellipse size
-                ax1, ax2 = 80, 50
+        whiteLevel = 160
+        #ellipse size
+        ax1, ax2 = 70, 30
+        axes = (ax1, ax2)
 
+        for pt in zip(*loc[::-1]):
+            cv2.rectangle(img_gray, pt, (pt[0] + w, pt[1] + h), (255,255,255), 1)
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            cv2.putText(img_gray, "Main pattern", (pt[0]-20, pt[1]-10), font, 0.5, (255), 1, cv2.LINE_AA)
+            if "front" in file or "-f" in args:
                 #right ellipse
-                cx, cy = 670, 425
+                #cx, cy = pt[0] + 305, pt[1] + 415
+                cx, cy = pt[0] - 125, pt[1] - 105   #slim
                 angle = 80
-                center = (cx, cy)
-                axes = (ax1, ax2)
-                cv2.ellipse(img_gray, center, axes, angle, 0 , 360, (255,255,255), 1)
+                cv2.ellipse(img_gray, (cx, cy), axes, angle, 0 , 360, (255,255,255), 1)
                 #masked image
-                mask = np.zeros(imgShape, dtype=np.uint8)     #last part is important in bitwise function
-                cv2.ellipse(mask, center, axes, angle, 0 , 360, 255, -1)
+                mask = np.zeros(imgShape, dtype=np.uint8)
+                cv2.ellipse(mask, (cx, cy), axes, angle, 0 , 360, 255, -1)
                 ret, mask = cv2.threshold(mask, 250, 255, cv2.THRESH_BINARY)
                 maskedImg = cv2.bitwise_and(img_gray, img_gray, mask=mask)
-                rightMean = maskedImg[np.where(maskedImg>0)].mean()   #by myself :)
+                #rightMean = maskedImg[np.where(maskedImg>0)].mean()
                 rightWhiteNumber = maskedImg[np.where(maskedImg>whiteLevel)].shape[0]
+                #histogram
+                #make_hist(maskedImg, cx, cy)
+
 
                 #center ellipse
-                cx, cy = 515, 465
-                angle = 75
-                center = (cx, cy)
-                axes = (ax1, ax2)
-                cv2.ellipse(img_gray, center, axes, angle, 0 , 360, (255,255,255), 1)  #last arg -1 -> full
+                #cx, cy = pt[0] + 150, pt[1] + 455
+                cx, cy = pt[0] - 270, pt[1] - 115   #slim
+                angle = 78
+                cv2.ellipse(img_gray, (cx, cy), axes, angle, 0 , 360, (255,255,255), 1)  #last arg -1 -> full
                 #masked image
-                mask = np.zeros(imgShape, dtype=np.uint8)     #last part is important in bitwise function
-                cv2.ellipse(mask, center, axes, angle, 0 , 360, 255, -1)
+                mask = np.zeros(imgShape, dtype=np.uint8)
+                cv2.ellipse(mask, (cx, cy), axes, angle, 0 , 360, 255, -1)
                 ret, mask = cv2.threshold(mask, 250, 255, cv2.THRESH_BINARY)
                 maskedImg = cv2.bitwise_and(img_gray, img_gray, mask=mask)
-                centerMean = maskedImg[np.where(maskedImg>0)].mean()   #by myself :)
+                #centerMean = maskedImg[np.where(maskedImg>0)].mean()
                 centerWhiteNumber = maskedImg[np.where(maskedImg>whiteLevel)].shape[0]
+                #histogram
+                #make_hist(maskedImg, cx, cy)
 
 
                 #left ellipse
-                cx, cy = 365, 525
-                angle = 68
-                center = (cx, cy)
-                axes = (ax1, ax2)
-                cv2.ellipse(img_gray, center, axes, angle, 0 , 360, (255,255,255), 1)
+                #cx, cy = pt[0] + 5, pt[1] + 515
+                cx, cy = pt[0] - 360, pt[1] - 110     #slim
+                angle = 70
+                cv2.ellipse(img_gray, (cx, cy), axes, angle, 0 , 360, (255,255,255), 1)
                 #masked image
-                mask = np.zeros(imgShape, dtype=np.uint8)     #last part is important in bitwise function
-                cv2.ellipse(mask, center, axes, angle, 0 , 360, 255, -1)
+                mask = np.zeros(imgShape, dtype=np.uint8)
+                cv2.ellipse(mask, (cx, cy), axes, angle, 0 , 360, 255, -1)
                 ret, mask = cv2.threshold(mask, 250, 255, cv2.THRESH_BINARY)
                 maskedImg = cv2.bitwise_and(img_gray, img_gray, mask=mask)
-                leftMean = maskedImg[np.where(maskedImg>0)].mean()   #by myself :)
+                #leftMean = maskedImg[np.where(maskedImg>0)].mean()
                 leftWhiteNumber = maskedImg[np.where(maskedImg>whiteLevel)].shape[0]
+                #histogram
+                #make_hist(maskedImg, cx, cy)
 
-
-                print("mean values(left,center,right):", int(round(leftMean)), int(round(centerMean)), int(round(rightMean)))
-                #print("white pixels number(left,center,right):", leftWhiteNumber, centerWhiteNumber, rightWhiteNumber)
+                #print("mean values(left,center,right):", int(round(leftMean)), int(round(centerMean)), int(round(rightMean)))
+                print("white pixels number(left,center,right):", leftWhiteNumber, centerWhiteNumber, rightWhiteNumber)
             else:
-                #ellipse size
-                ax1, ax2 = 85, 55
-
                 #left ellipse
-                cx, cy = 485, 420
+                #cx, cy = pt[0] - 330, pt[1] + 110
+                cx, cy = pt[0] - 310, pt[1] - 120   #slim
                 angle = 95
-                center = (cx, cy)
-                axes = (ax1, ax2)
-                cv2.ellipse(img_gray, center, axes, angle, 0 , 360, (255,255,255), 1)
+                cv2.ellipse(img_gray, (cx, cy), axes, angle, 0 , 360, (255,255,255), 1) 
                 #masked image
-                mask = np.zeros(imgShape, dtype=np.uint8)     #last part is important in bitwise function
-                cv2.ellipse(mask, center, axes, angle, 0 , 360, 255, -1)
+                mask = np.zeros(imgShape, dtype=np.uint8)
+                cv2.ellipse(mask, (cx, cy), axes, angle, 0 , 360, 255, -1)
                 ret, mask = cv2.threshold(mask, 250, 255, cv2.THRESH_BINARY)
                 maskedImg = cv2.bitwise_and(img_gray, img_gray, mask=mask)
-                leftMean = maskedImg[np.where(maskedImg>0)].mean()   #by myself :)
+                #leftMean = maskedImg[np.where(maskedImg>0)].mean()   #by myself :)
                 leftWhiteNumber = maskedImg[np.where(maskedImg>whiteLevel)].shape[0]
+                #histogram
+                #make_hist(maskedImg, cx, cy)
+
 
                 #right ellipse
-                cx, cy = 645, 450
-                angle = 105
-                center = (cx, cy)
-                axes = (ax1, ax2)
-                cv2.ellipse(img_gray, center, axes, angle, 0 , 360, (255,255,255), 1)
+                #cx, cy = pt[0] - 175, pt[1] + 140
+                cx, cy = pt[0] - 155, pt[1] - 130   #slim
+                angle = 100
+                cv2.ellipse(img_gray, (cx, cy), axes, angle, 0 , 360, (255,255,255), 1) 
                 #masked image
-                mask = np.zeros(imgShape, dtype=np.uint8)     #last part is important in bitwise function
-                cv2.ellipse(mask, center, axes, angle, 0 , 360, 255, -1)
+                mask = np.zeros(imgShape, dtype=np.uint8)
+                cv2.ellipse(mask, (cx, cy), axes, angle, 0 , 360, 255, -1)
                 ret, mask = cv2.threshold(mask, 250, 255, cv2.THRESH_BINARY)
                 maskedImg = cv2.bitwise_and(img_gray, img_gray, mask=mask)
-                rightMean = maskedImg[np.where(maskedImg>0)].mean()   #by myself :)
+                #rightMean = maskedImg[np.where(maskedImg>0)].mean()
                 rightWhiteNumber = maskedImg[np.where(maskedImg>whiteLevel)].shape[0]
+                #histogram
+                #make_hist(maskedImg, cx, cy)
 
-                print("mean values(left,right):", int(round(leftMean)), int(round(rightMean)))
-                #print("white pixels number(left,right):", leftWhiteNumber, rightWhiteNumber)
+
+                #print("mean values(left,right):", int(round(leftMean)), int(round(rightMean)))
+                print("white pixels number(left,right):", leftWhiteNumber, rightWhiteNumber)
             break
 
-        #find resistor
+        #find element
         if "front" in file or "-f" in args:
-            resistor = "resistor.png"
+            resistor = "element.png"
             resistorTemp = cv2.imread(resistor, 0)
             w, h = resistorTemp.shape[::-1]
             res = cv2.matchTemplate(img_gray, resistorTemp, cv2.TM_CCOEFF_NORMED)
-            threshold = 0.6
+            threshold = 0.8
             loc = np.where(res >= threshold)
             for pt in zip(*loc[::-1]):
-                cv2.rectangle(img_gray, pt, (pt[0] + w, pt[1] + h), (255,255,255), 2)
-                print("Resistor:True")
+                cv2.rectangle(img_gray, pt, (pt[0] + w, pt[1] + h), (255,255,255), 1)
+                print("Element:True")
                 break
             else:
-                print("Resistor:False")
+                print("Element:False")
 
         if "-p" in args:
+        #if 1:
             cv2.imshow('Detected',img_gray)
             cv2.waitKey(0)
             cv2.destroyAllWindows()
 
-
-#dorzucić wykrywanie zwarć, tj obszarów pomiędzy lutami
