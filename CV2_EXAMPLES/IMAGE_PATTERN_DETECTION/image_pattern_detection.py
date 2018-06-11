@@ -4,6 +4,7 @@ import cv2
 import os
 import sys
 import matplotlib.pyplot as plt
+from statistics import mean
 
 def script_path(subpath=""):
     if subpath:
@@ -25,6 +26,21 @@ def list_image_files(subpath):
     files = [item for item in os.listdir(path) if item.lower().endswith(fileTypes)]
     files = [item for item in files if not "pattern" in item]
     return files
+
+def draw_chart(data):
+    data_x = [key for key, val in enumerate(data)]
+    plt.plot(data_x, data)
+    plt.xlabel("pixels[n]")
+    plt.ylabel("intensity[0-255]")
+    plt.grid()
+    plt.show()
+    return True
+
+def make_vector(someArray):
+    #convert 2d, n-size array/matrix to 1d vector
+    h = someArray.shape[0]
+    someArray = someArray.flatten(1)
+    return [mean(someArray[i:i+h]) for i in range(0,len(someArray),h)]
 
 def make_hist(img, cx, cy):
     crop_img = img[cy-100:cy+100, cx-70:cx+70]
@@ -80,7 +96,7 @@ if __name__ == "__main__":
             if "front" in file or "-f" in args:
                 #right ellipse
                 #cx, cy = pt[0] + 305, pt[1] + 415
-                cx, cy = pt[0] - 125, pt[1] - 105   #slim
+                cx, cy = pt[0] - 25, pt[1] - 85   #slim
                 angle = 80
                 cv2.ellipse(img_gray, (cx, cy), axes, angle, 0 , 360, (255,255,255), 1)
                 #masked image
@@ -96,14 +112,28 @@ if __name__ == "__main__":
 
                 #center ellipse
                 #cx, cy = pt[0] + 150, pt[1] + 455
-                cx, cy = pt[0] - 270, pt[1] - 115   #slim
-                angle = 78
+                cx, cy = pt[0] - 210, pt[1] - 65   #slim
+                angle = 85
                 cv2.ellipse(img_gray, (cx, cy), axes, angle, 0 , 360, (255,255,255), 1)  #last arg -1 -> full
                 #masked image
                 mask = np.zeros(imgShape, dtype=np.uint8)
                 cv2.ellipse(mask, (cx, cy), axes, angle, 0 , 360, 255, -1)
                 ret, mask = cv2.threshold(mask, 250, 255, cv2.THRESH_BINARY)
                 maskedImg = cv2.bitwise_and(img_gray, img_gray, mask=mask)
+
+                crop_01 = maskedImg[cy-50:cy-49, cx-100:cx+100]
+                crop_02 = maskedImg[cy-1:cy+1, cx-100:cx+100]
+                crop_03 = maskedImg[cy+49:cy+50, cx-100:cx+100]
+                #cv2.imshow("crop01", crop_01)
+                #cv2.imshow("crop02", crop_02)
+                #cv2.imshow("crop03", crop_03)
+                vect_01 = make_vector(crop_01)
+                vect_02 = make_vector(crop_02)
+                vect_03 = make_vector(crop_03)
+                draw_chart(vect_01)
+                draw_chart(vect_02)
+                draw_chart(vect_03)
+
                 #centerMean = maskedImg[np.where(maskedImg>0)].mean()
                 centerWhiteNumber = maskedImg[np.where(maskedImg>whiteLevel)].shape[0]
                 #histogram
@@ -112,8 +142,8 @@ if __name__ == "__main__":
 
                 #left ellipse
                 #cx, cy = pt[0] + 5, pt[1] + 515
-                cx, cy = pt[0] - 360, pt[1] - 110     #slim
-                angle = 70
+                cx, cy = pt[0] - 380, pt[1] - 40     #slim
+                angle = 80
                 cv2.ellipse(img_gray, (cx, cy), axes, angle, 0 , 360, (255,255,255), 1)
                 #masked image
                 mask = np.zeros(imgShape, dtype=np.uint8)
