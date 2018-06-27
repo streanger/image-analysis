@@ -40,7 +40,7 @@ def image_to_ascii(file, printIm=True, reverseColor=False):
     asciiList = ascii_list()
     if reverseColor:
         asciiList = asciiList[::-1]
-    resolution = 1.25
+    resolution = 2.7
     picture = ""
     if 1:
         im = Image.open(file)  #with PIL
@@ -58,7 +58,7 @@ def image_to_ascii(file, printIm=True, reverseColor=False):
         imData = np.matrix(range(14400))
         resized = np.resize(imData, (120, 120))
         size = resized.shape
-    dotSizeY = size[0]//round(50*resolution)  #+ 1  #change it to resize in x i y axes  64/120
+    dotSizeY = size[0]//round(60*resolution)  #+ 1  #change it to resize in x i y axes  64/120
     #dotSizeY = size[1]//round(64*resolution)  #+ 1  #change it to resize in x i y axes  64/120
     if dotSizeY == 0:
         dotSizeY +=1
