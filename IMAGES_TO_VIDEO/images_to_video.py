@@ -47,4 +47,3 @@ if __name__ == "__main__":
         sys.exit()
     videoName = os.path.join(path, "video.avi")
     make_video(images, outvid=videoName, fps=10, is_color=True)
-    
