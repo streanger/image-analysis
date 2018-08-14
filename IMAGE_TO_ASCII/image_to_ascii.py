@@ -123,4 +123,5 @@ if __name__ == "__main__":
     path = script_path()
     file = args[0]
     image = image_to_ascii(file, reverseColor=False)
-    print(colored(image, "cyan"))
+    #print(colored(image, "cyan"))
+    print(image)

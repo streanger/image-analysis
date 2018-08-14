@@ -7,12 +7,12 @@ def script_path(subpath=''):
     path = os.path.realpath(os.path.dirname(sys.argv[0]))
     if subpath:
         path = os.path.join(path, subpath)
-    os.chdir(path)  #it seems to be quite important
+    os.chdir(path)
     return path
 
 def get_files(subpath=''):
     path = script_path(subpath)
-    files = [item for item in os.listdir(path) if item.endswith(".png")]
+    files = [item for item in os.listdir(path) if item.endswith((".jpg", ".png"))]
     files.sort()
     return files
 
@@ -38,9 +38,13 @@ def make_video(images, outvid="video.avi", fps=5, size=None,
 
 
 if __name__ == "__main__":
+    path = script_path()
     args = sys.argv[1:]
-    images = get_files('data')
+    dir = args[0]
+    images = get_files(dir)
     if not images:
         print("no images in specified directory...")
-    videoName = "video.avi"
-    make_video(images, outvid="video.avi", fps=10, is_color=True)
+        sys.exit()
+    videoName = os.path.join(path, "video.avi")
+    make_video(images, outvid=videoName, fps=10, is_color=True)
+    
