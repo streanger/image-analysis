@@ -38,7 +38,7 @@ def save_file(file, image):
 
 def usage():
     print("put help content here...\n")
-    sys.exit()
+    #sys.exit()
 
 def show_image(title, img):
     cv2.imshow(title, img)
@@ -53,15 +53,18 @@ def list_image_files():
 
 @timer
 def main(args):
-    args = ['test_image.png']
-    if not args:
+    #args = ['test_image.png']
+    if args:
+        file = args[0]
+    else:
         usage()
-    file = args[0]
+        file = 'test_image.png'
+        
     #print(file)
     img = cv2.imread(file, 0)       #read in greyscale
     blur = cv2.blur(img, (3, 3))    #blur the image to reduce noise
-    ret, thresh = cv2.threshold(blur, 200, 255, cv2.THRESH_BINARY)
-    #show_image('test_image', img)
+    ret, thresh = cv2.threshold(blur, 10, 255, cv2.THRESH_BINARY)
+    show_image('test_image', img)
     #show_image('thresh', thresh)
     
     #find contours
@@ -77,24 +80,22 @@ def main(args):
     #print("hull:", type(hull), len(hull))
     #draw hull    
     drawing = np.zeros((thresh.shape[0], thresh.shape[1], 3), np.uint8)
-     
+    mask = drawing*1 
     # draw contours and hull points
-    for key, contour in enumerate(contours):
+    for key, contour in enumerate(contours[:]):
         color_contours = (0, 255, 0) # green - color for contours
         color = (255, 0, 0) # blue - color for convex hull
         # draw ith contour
         cv2.drawContours(drawing, contours, key, color_contours, 1, 8, hierarchy)
-        # draw ith convex hull object
+        # draw ith convex hull object       
         cv2.drawContours(drawing, hull, key, color, 1, 8)
+    cv2.fillPoly(drawing, pts = hull, color=(255,255,255))
+    cv2.imwrite('convex.png', drawing)
+    show_image('hull image', drawing)
+
     
-    show_image('hull image', drawing)    
-        
 if __name__ == "__main__":
     path = script_path()
     main(sys.argv[1:])
-    
-    
-    
-    
     
     
