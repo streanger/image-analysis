@@ -42,7 +42,6 @@ def reverse_colors(img):
     return reversed
     
 def main(args):
-    args = ["lamps.png"]
     if not args:
         usage()
         sys.exit()
