@@ -9,7 +9,7 @@ def script_path():
     return path
 
 def make_gif(files):
-    with imageio.get_writer('movie.gif', mode='I') as writer:
+    with imageio.get_writer('movie.gif', mode='I', fps=60) as writer:
         for file in files:
             image = imageio.imread(file)
             writer.append_data(image)
