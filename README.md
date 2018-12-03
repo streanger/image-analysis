@@ -17,3 +17,7 @@ You can find here scripts like:
 ## Example of ascii-art, generated from image
 
 ![image](woman.png)
+
+## Example of roll_layers script output
+
+![image](out0045.png)
