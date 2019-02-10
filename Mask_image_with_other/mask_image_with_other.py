@@ -219,24 +219,22 @@ def main(args):
         
         # get the list of current files to avoid redundancy
         try:
-            currentAvatars = [item.rstrip('.jpg') for item in dir_files('avatars', full=False)]
+            currentAvatars = [os.path.splitext(item)[0] for item in dir_files('avatars', full=False)]
             currentAvatars.sort()
         except:
             currentAvatars = []
         
-        # think of more useful condition and use sets to not download the same image again(and remove these not needed)
-        if currentAvatars != nicknamesList:
-            download_avatars(nicknamesList, "avatars")
-        else:
-            # print("--> no need to download again...")
-            pass
-    
+        diff = set(currentAvatars).symmetric_difference(set(nicknamesList))     # download only missing avatars
+        pprint.pprint("len(diff): {}, diff: {}".format(len(diff), diff))
+        download_avatars(diff, "avatars")
+        sys.exit()
     
     # *************************************************************************    
     # **********************  create image from avatars  **********************
     # *************************************************************************
     
     avatarsList = dir_files('avatars', full=True)
+    # avatarsList = avatarsList[:400]
     avatarsImages = [cv2.imread(file, 1) for file in avatarsList]
     
     # get the most common shape of avatars
@@ -266,6 +264,9 @@ def main(args):
     
     # repeat images in list
     repeatedAvatars = repeat_list(avatarsImages, itemsNeeded)
+    print(len(repeatedAvatars))
+    # sys.exit()
+    
     avatarsRows = [repeatedAvatars[n:n+colItems] for n in range(0, itemsNeeded, colItems)]
     if appendRow:
         avatarsRows.insert(len(avatarsRows), avatarsRows[0])
@@ -282,11 +283,12 @@ def main(args):
     # last thing todo is to mask image; avatars image -> imageFromAvatars; mask image -> mask
     
     if False:
-        for alpha in np.arange(0, 1.0, 0.01):
+        for alpha in np.arange(0, 1.0, 0.05):
             print("alpha: {}".format(alpha), end='\r', flush=True)
             output = mask.copy()
             overlay = imageFromAvatars.copy()
             cv2.addWeighted(overlay, alpha, output, 1 - alpha, 0, output)
+            cv2.imwrite("output{}.jpg".format(alpha), output)
             
             cv2.namedWindow("output", cv2.WINDOW_NORMAL)
             cv2.imshow("output", output)
@@ -299,8 +301,8 @@ def main(args):
         overlay = imageFromAvatars.copy()  
         alpha = 0.1
         cv2.addWeighted(overlay, alpha, output, 1 - alpha, 0, output)
-        cv2.imwrite("output.jpg", output)
-        show_image("output, alpha: {}".format(alpha), output)
+        cv2.imwrite("output2.jpg", output)
+        # show_image("output, alpha: {}".format(alpha), output)
         
     return True
     
