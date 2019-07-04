@@ -127,3 +127,4 @@ info:
     -and cut_headers function. For some images we don't need to cut headers. In such situation we can make this line like this:
         --> out = [item[0:-1, :] for item in images]
     -to be honest, for most cases we need to specify our own values :<
+'''
