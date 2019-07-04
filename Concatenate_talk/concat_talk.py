@@ -120,4 +120,10 @@ if __name__ == "__main__":
     cv2.imwrite('full_image.jpg', full_image)
     
     
-    
+'''
+info:
+    -threshold is important. At 0.80 level is quite enough
+    -this line too --> template = images[key+1][0:40, :]
+    -and cut_headers function. For some images we don't need to cut headers. In such situation we can make this line like this:
+        --> out = [item[0:-1, :] for item in images]
+    -to be honest, for most cases we need to specify our own values :<
