@@ -3,6 +3,9 @@ import sys
 import os
 import numpy as np
 import cv2
+from PIL import Image, ImageDraw, ImageFont
+from best_square import best_square
+
 
 
 def script_path():
@@ -83,17 +86,85 @@ def cv2_fonts_example():
     for key, font in enumerate(fonts):
         # font = cv2.FONT_HERSHEY_SIMPLEX
         print('{:02}. {}'.format(key, font))
-        cv2.putText(img, '{:02}. {} -> OpenCV'.format(key, font), (20, 75 + key*75), getattr(cv2, font), 2, (255,255,255), 2, cv2.LINE_AA)
+        text = '{:02}. {} -> OpenCV {}'.format(key, font, chr(512))
+        cv2.putText(img, text, (20, 75 + key*75), getattr(cv2, font), 2, (255,255,255), 2, cv2.LINE_AA)
     
     cv2.imwrite('cv2_fonts.png', img)
     show_image('some', img)
     return True
     
     
+def make_mask(text, file):
+    fontpath = "./simsun.ttc" # <== 这里是宋体路径 
+    font = ImageFont.truetype(fontpath, 122)
+    mask = font.getmask(text)
+    a, b = best_square(len(mask), 1)
+    img = np.array(mask)
+    out = np.reshape(img, (a, b))
+    cv2.imwrite(file, out)
+    return True
+    
+    
+def create_masks():
+    currentPath = os.path.realpath(os.path.dirname(sys.argv[0]))
+    os.chdir(currentPath)  #it seems to be quite important
+    new_dir = 'masked_characters'
+    if not os.path.exists(new_dir):
+        os.makedirs(new_dir)
+        
+    for x in range(256):
+        try:
+            text = chr(x)
+            file = os.path.join(currentPath, new_dir, '{}.png'.format(text))
+            make_mask(text, file)
+        except:
+            print('error:', x)
+    return True
+    
+    
 if __name__ == "__main__":
     script_path()
     # img = cv2.imread('view.png', 1)
-    cv2_fonts_example()
-
+    # cv2_fonts_example()
     
     
+    # **************** draw chinesse char in PIL & convert image to numpy array ****************
+    # '''
+    fontpath = "./simsun.ttc" # <== 这里是宋体路径 
+    font = ImageFont.truetype(fontpath, 122)
+    img = create_image(725, 1800)
+    img_pil = Image.fromarray(img)
+    draw = ImageDraw.Draw(img_pil)
+    # draw.text((50, 80),  "端午节就要到了。。。", font = font, fill = (b, g, r, a))
+    b, g, r, a = 50, 255, 50, 0
+    draw.text((50, 80),  "端午节就要到了。。。", font = font, fill = (b, g, r, a))
+    img = np.array(img_pil)
+    show_image('some', img)
+    
+    # fonts = [item for item in dir(cv2) if item.startswith('FONT')]
+    # for key, font in enumerate(fonts):
+        # text = 'this is very text ' + chr(512)
+        # cv2.putText(img, '{}'.format(text), (100, 100), , 2, (255,255,255), 2, cv2.LINE_AA)
+    # show_image('some', img)    
+    # '''
+    
+    
+    # **************** create mask to characters ****************
+    # best_square is not alway the best :(
+    # need to find out if this information is in font object
+    # create_masks()
+    
+    
+    # **************** just for tests ****************
+    # fontpath = "./simsun.ttc" # <== 这里是宋体路径 
+    # font = ImageFont.truetype(fontpath, 122)
+    # mask = font.getmask('b')
+    # img = np.array(mask)
+    
+    
+'''
+INFO:
+    The cv2.putText don't support no-ascii char in my knowledge. Try to use PIL to draw NO-ASCII(such Chinese) on the image.
+    https://stackoverflow.com/questions/50854235/how-to-draw-chinese-text-on-the-image-using-cv2-puttextcorrectly-pythonopen
+    
+'''
