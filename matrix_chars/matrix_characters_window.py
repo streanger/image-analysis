@@ -1,6 +1,8 @@
 '''this script is for make matrix characters'''
 import sys
 import os
+import time
+import random
 import numpy as np
 import cv2
 from PIL import Image, ImageDraw, ImageFont
@@ -38,8 +40,8 @@ def overlay_image(img):
     return out
     
     
-def create_image(w, h):
-    img = np.zeros((w, h, 3), dtype=np.uint8)
+def create_image(w, h, layers=3):
+    img = np.zeros((w, h, layers), dtype=np.uint8)
     return img
     
     
@@ -76,7 +78,7 @@ def paste_image(smaller, bigger, x_pos, y_pos):
     dst = cv2.add(img1_bg, img2_fg)
     out = bigger.copy()         # we shouldn't change original image
     out[y_pos:y_pos+height, x_pos:x_pos+width] = dst
-    return ou
+    return out
     
     
 def cv2_fonts_example():
@@ -122,6 +124,12 @@ def create_masks():
     return True
     
     
+def alpha(img):
+    B, G, R, alpha = cv2.split(img)
+    out = cv2.merge((B, G, R, G))
+    return out
+    
+    
 if __name__ == "__main__":
     script_path()
     # img = cv2.imread('view.png', 1)
@@ -130,21 +138,47 @@ if __name__ == "__main__":
     
     # **************** draw chinesse char in PIL & convert image to numpy array ****************
     # '''
-    fontpath = "./simsun.ttc" # <== 这里是宋体路径 
-    font = ImageFont.truetype(fontpath, 122)
-    img = create_image(725, 1800)
-    img_pil = Image.fromarray(img)
-    draw = ImageDraw.Draw(img_pil)
-    # draw.text((50, 80),  "端午节就要到了。。。", font = font, fill = (b, g, r, a))
-    b, g, r, a = 50, 255, 50, 0
-    draw.text((50, 80),  "端午节就要到了。。。", font = font, fill = (b, g, r, a))
-    img = np.array(img_pil)
-    show_image('some', img)
+    pos = 0
+
+    
+    img = create_image(800, 1200, 3)
+    while True:
+        fontpath = "./simsun.ttc" # <== 这里是宋体路径 
+        # font = ImageFont.truetype(fontpath, 122)
+        font = ImageFont.truetype(fontpath, 40)
+        part = create_image(40, 40, 4)
+        img_pil = Image.fromarray(part)
+        draw = ImageDraw.Draw(img_pil)
+        
+        # draw.text((50, 80),  "端午节就要到了。。。", font = font, fill = (b, g, r, a))
+        randColor = random.randrange(-70, 70)
+        b, g, r, a = 70 + randColor, 180 + randColor, 70 + randColor, 0
+        
+        randX = random.randrange(1200)
+        randY = random.randrange(800)
+        # draw.text((50 + pos*1, 80 + pos*1),  "端午节就要到了。。。", font = font, fill = (b, g, r, a))
+        # draw.text((randX, randY),  "端", font = font, fill = (b, g, r, a))
+        sign = random.choice(list('端午节就要到了'))
+        draw.text((0, 0), sign, font = font, fill = (b, g, r, a))
+        part = np.array(img_pil)
+        # show_image('part', part)        # just show how the character looks like
+        img = paste_image(alpha(part), img, randX, randY)
+        # img[50:200, 50:200] = part        # the way of paste
+        # cv2.imwrite('matrix_chars.png', img)
+        cv2.imshow('img', img)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+        time.sleep(0.01)
+        pos += 10
+    cv2.destroyAllWindows()
+    
+    
+    # '''
     
     # fonts = [item for item in dir(cv2) if item.startswith('FONT')]
     # for key, font in enumerate(fonts):
         # text = 'this is very text ' + chr(512)
-        # cv2.putText(img, '{}'.format(text), (100, 100), , 2, (255,255,255), 2, cv2.LINE_AA)
+        # cv2.putText(img, '{}'.format(text), (100, 100), 1, 2, (255,255,255), 2, cv2.LINE_AA)
     # show_image('some', img)    
     # '''
     
