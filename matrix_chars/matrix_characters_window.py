@@ -40,8 +40,8 @@ def overlay_image(img):
     return out
     
     
-def create_image(w, h, layers=3):
-    img = np.zeros((w, h, layers), dtype=np.uint8)
+def create_image(h, w, layers=3):
+    img = np.zeros((h, w, layers), dtype=np.uint8)
     return img
     
     
@@ -136,40 +136,122 @@ if __name__ == "__main__":
     # cv2_fonts_example()
     
     
+    # **************** IMAGE height-width example ****************
+    # width = 1266
+    # height = 866
+    # img = create_image(height, width, 3)
+    # cv2.imwrite('some.png', img)
+    # sys.exit()
+    
+    
+    
     # **************** draw chinesse char in PIL & convert image to numpy array ****************
     # '''
     pos = 0
 
+    # width = 1266
+    width = 800
+    # height = 866
+    height = 600
+    # chinesseChars = '端午节就要到了'
+    chinesseChars = '端午节就要到了價价価樂乐楽氣气気廳厅庁發发発勞劳労劍剑剣歲岁歳權权権燒烧焼贊赞賛兩两両譯译訳觀观観營营営處处処齒齿歯驛驿駅櫻樱桜產产産藥药薬讀读読'
     
-    img = create_image(800, 1200, 3)
+    img = create_image(height, width, 3)
+    parts = []
+    cv2.namedWindow('img', cv2.WINDOW_GUI_NORMAL)
     while True:
         fontpath = "./simsun.ttc" # <== 这里是宋体路径 
         # font = ImageFont.truetype(fontpath, 122)
-        font = ImageFont.truetype(fontpath, 40)
-        part = create_image(40, 40, 4)
-        img_pil = Image.fromarray(part)
-        draw = ImageDraw.Draw(img_pil)
+        # font = ImageFont.truetype(fontpath, 40)
+        font = ImageFont.truetype(fontpath, 25)
+        
         
         # draw.text((50, 80),  "端午节就要到了。。。", font = font, fill = (b, g, r, a))
-        randColor = random.randrange(-70, 70)
-        b, g, r, a = 70 + randColor, 180 + randColor, 70 + randColor, 0
+
         
-        randX = random.randrange(1200)
-        randY = random.randrange(800)
-        # draw.text((50 + pos*1, 80 + pos*1),  "端午节就要到了。。。", font = font, fill = (b, g, r, a))
-        # draw.text((randX, randY),  "端", font = font, fill = (b, g, r, a))
-        sign = random.choice(list('端午节就要到了'))
-        draw.text((0, 0), sign, font = font, fill = (b, g, r, a))
-        part = np.array(img_pil)
-        # show_image('part', part)        # just show how the character looks like
-        img = paste_image(alpha(part), img, randX, randY)
-        # img[50:200, 50:200] = part        # the way of paste
-        # cv2.imwrite('matrix_chars.png', img)
+        newParts = []
+        
+        for x in range(10):
+            # part = create_image(40, 40, 4)
+            part = create_image(25, 25, 4)
+            img_pil = Image.fromarray(part)
+            draw = ImageDraw.Draw(img_pil)
+            
+            randColor = random.randrange(-70, 70)
+            b, g, r, a = 70 + randColor, 180 + randColor, 70 + randColor, 0
+            
+            randX = random.randrange(width)
+            # randX = random.randrange(pos + 1, pos + 11)
+            randY = random.randrange(height)
+            # print(randX, randY)
+            # draw.text((50 + pos*1, 80 + pos*1),  "端午节就要到了。。。", font = font, fill = (b, g, r, a))
+            # draw.text((randX, randY),  "端", font = font, fill = (b, g, r, a))
+            sign = random.choice(list(chinesseChars))
+            draw.text((0, 0), sign, font = font, fill = (b, g, r, a))
+            part = np.array(img_pil)
+            newParts.append((part, (randX, randY)))
+            # newParts.append((part, (randX, randY + 15*random.randrange(10))))
+            # newParts.append((part, (randX, randY + 10*random.randrange(10))))
+        if True:
+            # parts.append((part, (randX, randY)))
+            # parts.append((part, (randX, randY + 5)))
+            # parts.append((part, (randX, randY + 15)))
+            parts.extend(newParts)
+            img = create_image(height, width, 3)
+            
+            limit = round(0.75 * len(parts))        # this makes funny effect
+            # print(len(parts), limit)
+            
+            for key, (part, (posx, posy)) in enumerate(parts):
+                if False:
+                    # ******* this is wrong *******
+                    if key < limit:
+                        posyOut = posy + pos * (key+1)
+                    else:
+                        posyOut = posy
+                    if posyOut > height:
+                        del parts[key]
+                    else:
+                        parts[key] = (part, (posx, posyOut))     # change value of items in list
+                    img = paste_image(alpha(part), img, posx, posy)
+                else:
+                    if key < limit:
+                        # posy += pos * (key+1)
+                        posy += pos
+                    else:
+                        posy = posy
+                    if posy > height:
+                        del parts[key]
+                    else:
+                        parts[key] = (part, (posx, posy))     # change value of items in list
+                    
+                    now = alpha(part)
+                    now[np.where(now>0)] += round(45*posy/height)
+                    # img = paste_image(alpha(part), img, posx, posy)
+                    img = paste_image(now, img, posx, posy)
+                
+                
+                
+        else:
+            # show_image('part', part)        # just show how the character looks like
+            img = paste_image(alpha(part), img, randX, randY)
+            # img[50:200, 50:200] = part        # the way of paste
+            # cv2.imwrite('matrix_chars.png', img)
+        # show_image('img', img)
         cv2.imshow('img', img)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        time.sleep(0.01)
-        pos += 10
+        # time.sleep(0.01)
+        
+        
+        # pos += 1
+        # if pos > height:
+            # pos = 0
+        pos = 25
+        
+        
+        # time.sleep(0.01)
+        # down
     cv2.destroyAllWindows()
     
     
@@ -200,5 +282,8 @@ if __name__ == "__main__":
 INFO:
     The cv2.putText don't support no-ascii char in my knowledge. Try to use PIL to draw NO-ASCII(such Chinese) on the image.
     https://stackoverflow.com/questions/50854235/how-to-draw-chinese-text-on-the-image-using-cv2-puttextcorrectly-pythonopen
+    
+02.09.2019, 23:59
+-this is very rubbish for now
     
 '''
