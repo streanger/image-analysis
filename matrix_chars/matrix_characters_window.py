@@ -3,6 +3,7 @@ import sys
 import os
 import time
 import random
+import string
 import numpy as np
 import cv2
 from PIL import Image, ImageDraw, ImageFont
@@ -148,13 +149,34 @@ if __name__ == "__main__":
     # **************** draw chinesse char in PIL & convert image to numpy array ****************
     # '''
     pos = 0
-
-    # width = 1266
-    width = 800
+    
+    
+    # ************** this is important **************
+    # digitSize = 15      # size of single digit
+    digitSize = 20      # size of single digit
+    
+    
+    
+    # width, height = 700, 700
+    # width, height = 300, 800      # this is allright
+    # width, height = 150, 800
+    # width, height = 1920, 1080      # full-hd
+    width, height = 1366, 768
+    
+    
+    # widthItems = [x for x in range(0, width, 25)]
+    widthItems = [x for x in range(0, width, digitSize*2)]
+    widthItemsBack = [x for x in range(digitSize + 1, width, digitSize*3)]
     # height = 866
-    height = 600
+    # height = 600
+    
+    
+    
     # chinesseChars = '端午节就要到了'
-    chinesseChars = '端午节就要到了價价価樂乐楽氣气気廳厅庁發发発勞劳労劍剑剣歲岁歳權权権燒烧焼贊赞賛兩两両譯译訳觀观観營营営處处処齒齿歯驛驿駅櫻樱桜產产産藥药薬讀读読'
+    chinesseChars = 3*'端午节就要到了價价価樂乐楽氣气気廳厅庁發发発勞劳労劍剑剣歲岁歳權权権燒烧焼贊赞賛兩两両譯译訳觀观観營营営處处処齒齿歯驛驿駅櫻樱桜產产産藥药薬讀读読'
+    # chinesseChars += string.ascii_lowercase
+    chinesseChars += string.printable
+    
     
     img = create_image(height, width, 3)
     parts = []
@@ -167,30 +189,51 @@ if __name__ == "__main__":
         
         
         # draw.text((50, 80),  "端午节就要到了。。。", font = font, fill = (b, g, r, a))
-
+        
         
         newParts = []
         
-        for x in range(10):
-            # part = create_image(40, 40, 4)
-            part = create_image(25, 25, 4)
-            img_pil = Image.fromarray(part)
-            draw = ImageDraw.Draw(img_pil)
-            
-            randColor = random.randrange(-70, 70)
-            b, g, r, a = 70 + randColor, 180 + randColor, 70 + randColor, 0
-            
-            randX = random.randrange(width)
-            # randX = random.randrange(pos + 1, pos + 11)
-            randY = random.randrange(height)
-            # print(randX, randY)
-            # draw.text((50 + pos*1, 80 + pos*1),  "端午节就要到了。。。", font = font, fill = (b, g, r, a))
-            # draw.text((randX, randY),  "端", font = font, fill = (b, g, r, a))
-            sign = random.choice(list(chinesseChars))
-            draw.text((0, 0), sign, font = font, fill = (b, g, r, a))
-            part = np.array(img_pil)
-            newParts.append((part, (randX, randY)))
-            # newParts.append((part, (randX, randY + 15*random.randrange(10))))
+        # do not create new parts if its too much of current ones
+        # if len(parts) < 150:
+        if len(parts) < 250:
+            for x in range(10):
+                # part = create_image(40, 40, 4)
+                for y in range(2):
+                    # part = create_image(25, 25, 4)
+                    part = create_image(digitSize, digitSize, 4)
+                    img_pil = Image.fromarray(part)
+                    draw = ImageDraw.Draw(img_pil)
+                    
+                    if y:
+                        randColor = random.randrange(20)
+                        b, g, r, a = 10 + randColor, 50 + randColor, 10 + randColor, 0
+                        randX = random.choice(widthItemsBack)
+                    else:
+                        randColor = random.randrange(-60, 60)
+                        if randColor == 54:
+                            b, g, r, a = 20, 20, 255, 0
+                        else:
+                            b, g, r, a = 60 + randColor, 180 + randColor, 60 + randColor, 0
+                        randX = random.choice(widthItems)
+                    
+                    # randX = random.randrange(width)
+                    
+                    # randX = random.randrange(pos + 1, pos + 11)
+                    randY = random.randrange(height)
+                    # print(randX, randY)
+                    # draw.text((50 + pos*1, 80 + pos*1),  "端午节就要到了。。。", font = font, fill = (b, g, r, a))
+                    # draw.text((randX, randY),  "端", font = font, fill = (b, g, r, a))
+                    sign = random.choice(list(chinesseChars))
+                    draw.text((0, 0), sign, font = font, fill = (b, g, r, a))
+                    part = np.array(img_pil)
+                    
+                    if y:
+                        newParts.append((part, (randX, randY)))
+                    else:
+                        newParts.append((part, (randX, randY)))
+                    
+                    
+            # newParts.append((part, (randX+10, randY)))
             # newParts.append((part, (randX, randY + 10*random.randrange(10))))
         if True:
             # parts.append((part, (randX, randY)))
@@ -199,7 +242,7 @@ if __name__ == "__main__":
             parts.extend(newParts)
             img = create_image(height, width, 3)
             
-            limit = round(0.75 * len(parts))        # this makes funny effect
+            limit = round(0.85 * len(parts))        # this makes funny effect
             # print(len(parts), limit)
             
             for key, (part, (posx, posy)) in enumerate(parts):
@@ -247,7 +290,9 @@ if __name__ == "__main__":
         # pos += 1
         # if pos > height:
             # pos = 0
+        # pos = 25
         pos = 25
+        time.sleep(0.001)
         
         
         # time.sleep(0.01)
@@ -286,4 +331,13 @@ INFO:
 02.09.2019, 23:59
 -this is very rubbish for now
     
+    
+03.09.2019
+-think of just moving main screen down and not draw every part each time
+-other thing is too mask whole screen with gradient image or something like that
+-i think it should increase speed, which is very slow because of many useless operations :(
+
 '''
+
+
+
