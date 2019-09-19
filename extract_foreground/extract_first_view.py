@@ -50,7 +50,7 @@ def extract_image(img, toErode, valueX, valueY):
     mask = create_blank_image(height, width)
     cnt = contours[:1]
     x, y, w, h = cv2.boundingRect(cnt[0])
-    cv2.drawContours(mask, cnt, -2, (255, 255, 255), -1)        
+    cv2.drawContours(mask, cnt, -1, (255, 255, 255), -1)        
     out = cv2.bitwise_or(img, img, mask=mask)
     B, G, R = cv2.split(out)
     out = cv2.merge((B, G, R, mask))
@@ -64,10 +64,10 @@ def extract_image(img, toErode, valueX, valueY):
     
 if __name__ == "__main__":
     script_path()
-    # file = 'DSC_9686__35305.1486048373.960.550.jpg'
     # file = 'test.png'
     file = 'very_test.png'
-    file = 'img1_initial.jpg'
+    file = 'flower.jpg'
+    # file = 'img1_initial.jpg'
     files = [file]
     # files = [item for item in os.listdir() if item.endswith(('.png', '.jpg'))]
     
@@ -81,10 +81,11 @@ if __name__ == "__main__":
             
             
     # ********************* test different combinations *********************
-    new = make_dir('test')
+    
+    new = make_dir(file.split('.')[0])
     img = cv2.imread(file, 1)
-    for x in range(40):
-        for y in range(10):
+    for x in range(60):
+        for y in range(20):
             try:
                 out = extract_image(img, True, x, y)
                 filename = os.path.join(new, '{}_{}.png'.format(x, y))
