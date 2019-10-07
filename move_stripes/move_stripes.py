@@ -179,10 +179,34 @@ def example_many(status=True):
     return True
     
     
+def mixer_example():
+    '''make many iterations of move_stripes, to get strange effect'''
+    # file = '23298059.png'
+    file = 'me.JPG'
+    img = cv2.imread(file, 1)
+    for x in range(0, 60, 2):
+        img = move_stripes_many(img, 5+x, 50-x, strike=2, order_position='BGR', order_up_down='BGR', vertical=False, cut_out=False)
+        img = move_stripes_many(img, 65-x, 10+x, strike=3, order_position='BGR', order_up_down='BGR', vertical=True, cut_out=False)
+        # print(x)
+        # show_image('img', img)
+        
+        # cv2.imshow('img', img)
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+            # break
+            
+            
+        # ask = input('type q, to quit and save current image: ')
+        # if ask.lower() == 'q':
+            # break
+            
+    cv2.imwrite(file.replace('.', '_out.'), img)
+    cv2.destroyAllWindows()
+    return True
+    
+    
 if __name__ == "__main__":
     script_path()
     file = 'image01.jpg'
-    # file = 'image02.jpg'
     img = cv2.imread(file, 1)
     
     
@@ -192,16 +216,12 @@ if __name__ == "__main__":
     
     
     # move single layer(s)
-    out = move_stripes_many(img, 30, 10, strike=5, order_position='BGR', order_up_down='BGR', vertical=False, cut_out=False)
+    out = move_stripes_many(img, 15, 3, strike=3, order_position='RGB', order_up_down='BGR', vertical=False, cut_out=True)
     show_image('out', out)
     
     
-    # example(status=True)
-    # example_many(status=True)
-    
-    
 '''
-todo:
+todo(06.10.2019):
     -swap single layers(s)                                          (+)
     -strike value (R -<value>- G -<value>- B)                       (+)
     -choose positions ->: RGB, BGR, ...                             (+)
