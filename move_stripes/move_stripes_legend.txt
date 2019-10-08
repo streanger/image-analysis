@@ -1,0 +1,8 @@
+img                     --obiekt obrazu przekazywany do funkcji
+size_y                  --szerokość pasków
+size_x                  --wysunięcie pasków w prawo/lewo
+strike=0                --rozstrzał(przesunięcie) warstw RGB w prawo/lewo. Zero(0) oznacza brak przesunięcia.
+order_position='BGR'    --kolejność przesunięcia. Dla 'BGR', najbardziej z lewej będzie warstwa B, warstwa G będzie w środku, a R po prawej
+order_up_down='BGR'     --położenie warstw RGB, w sensie kolorystycznym. Zamieniając je możesz zamienić np warstwę zieloną z czerwoną.
+vertical=False          --przesunięcie pasków w pionie/poziomie
+cut_out=False           --przytnij obraz do rozmiarów pierwotnych
