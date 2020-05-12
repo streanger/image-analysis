@@ -88,9 +88,56 @@ def generate_points(diff=30, height=30, start_x=100, start_y=50):
     # cv2.imwrite('img.png', img)
     return points_pairs
     
+    
+def make_video(images, outvid="video.avi", fps=5, size=None,
+               is_color=True, format="XVID"):
+    fourcc = cv2.VideoWriter_fourcc(*format)
+    vid = None
+    imNumber = len(images)
+    for key, file in enumerate(images):
+        print(file)
+        img = cv2.imread(file)
+        if vid is None:
+            if size is None:
+                size = img.shape[1], img.shape[0]
+            vid = cv2.VideoWriter(outvid, fourcc, float(fps), size, is_color)
+        if size[0] != img.shape[1] and size[1] != img.shape[0]:
+            img = cv2.resize(img, size)
+        vid.write(img)
+        #print("Progress: {0}%".format((key+1)/imNumber*100), end="\r", flush=True)
+    cv2.destroyAllWindows()
+    vid.release()
+    return vid
+    
+    
+def make_video(points_pairs, outvid="video.avi", fps=5, size=None, is_color=True, format="XVID"):
+    fourcc = cv2.VideoWriter_fourcc(*format)
+    vid = None
+
+    color = (50, 50, 255)
+    thickness = 3
+    img = blank_image(150, 600)
+    points_pairs.insert(0, ((0, 0), (0, 0)))
+    points_pairs += [points_pairs[-1]]*10
+    for key, (p1, p2) in enumerate(points_pairs):
+        if key:
+            img = cv2.line(img, p1, p2, color, thickness)
+        if vid is None:
+            if size is None:
+                size = img.shape[1], img.shape[0]
+            vid = cv2.VideoWriter(outvid, fourcc, float(fps), size, is_color)
+        if size[0] != img.shape[1] and size[1] != img.shape[0]:
+            img = cv2.resize(img, size)
+        vid.write(img)
+    vid.release()
+    return vid
+    
+    
 if __name__ == "__main__":
     path = script_path()
     points_pairs = generate_points(diff=30, height=30, start_x=100, start_y=50)
+    make_video(points_pairs, outvid="video.avi", fps=3, size=None, is_color=True, format="XVID")
+    # sys.exit()
     
     color = (50, 50, 255)
     thickness = 3
@@ -107,6 +154,7 @@ if __name__ == "__main__":
     
     show_image('new', new)
     cv2.imwrite('new.png', new)
+    
     
 '''
 the most useless script i have ever done
