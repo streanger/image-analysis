@@ -21,3 +21,7 @@ You can find here scripts like:
 ## Example of roll_layers script output
 
 ![image](out0045.png)
+
+## Example of move_stripes script output
+
+![image](move_stripes/image01_out_many_8.jpg)
