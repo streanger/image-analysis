@@ -25,3 +25,7 @@ You can find here scripts like:
 ## Example of move_stripes script output
 
 ![image](move_stripes/image01_out_many_8.jpg)
+
+## Opencv fonts
+
+![image](matrix_chars/cv2_fonts.png)
