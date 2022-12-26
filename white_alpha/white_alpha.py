@@ -49,7 +49,7 @@ if __name__ == "__main__":
     rgba = white_transparent_alpha(img)
 
     # show for debug
-    show_image('rgba', rgba)
+    # show_image('rgba', rgba)
 
     # write image with alpha channel to file
     cv2.imwrite('ship.png', rgba)
