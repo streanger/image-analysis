@@ -38,8 +38,15 @@ def white_transparent_alpha(img):
 
 
 if __name__ == "__main__":
+    # args
+    args = sys.argv[1:]
+    if not args:
+        print('usage:')
+        print('python <script.py> <filename>')
+        sys.exit()
+
     # read original image
-    filename = 'ship_rgb.png'
+    filename = args[0]
     if not Path(filename).is_file():
         print('file does not exists: {}'.format(filename))
         sys.exit()
@@ -52,4 +59,6 @@ if __name__ == "__main__":
     # show_image('rgba', rgba)
 
     # write image with alpha channel to file
-    cv2.imwrite('ship.png', rgba)
+    out = Path(filename)
+    out = out.with_stem(out.stem + '_rgba')
+    cv2.imwrite(str(out), rgba)
